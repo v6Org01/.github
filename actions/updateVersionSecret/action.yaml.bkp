@@ -1,0 +1,38 @@
+name: "updateVersionSecret"
+description: "Updates the value of Org Secrets: $APP_NEW_VERSION_FOUND and $APP_(IMAGE)_VERSION"
+author: "elaurensx"
+
+inputs:
+  APP:
+    description: ""
+    required: true
+    type: string
+  TYPE:
+    description: ""
+    required: true
+    type: string
+  VERSION:
+    description: ""
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Update $APP_NEW_VERSION_FOUND"
+      run: |
+        if ["${{ inputs.VERSION }}" != "${{ vars.
+        curl -L \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -d "{\"name\":\"DUO_NEW_VERSION_FOUND\",\"value\":\"true\"}"
+
+  using: 'node12' # or 'docker' or 'composite' depending on your environment
+  main: 'index.js' # The entry point file for your action
+
+branding:
+  icon: 'zap' # Optional, icon displayed in the GitHub Marketplace
+  color: 'blue' # Optional, color for the action in the GitHub Marketplace
+

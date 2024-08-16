@@ -1,0 +1,8 @@
+{
+  "name": "Build Container Image on New App Version",
+  "description": "",
+  "iconName": "package",
+  "categories": [ 
+		  "Build"
+		]
+}	
