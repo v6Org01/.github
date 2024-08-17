@@ -21,12 +21,14 @@ jobs:
   debug:
     runs-on:
       - self-hosted
+      - X64
     steps:
       - name: print if new app version found
         run: echo "<app>_NEW_VERSION_FOUND value is ${{ vars.<app>_NEW_VERSION_FOUND }}"
   build-image:
     runs-on:
       - self-hosted
+      - X64
     needs: debug
     if: ${{ vars.<app>_NEW_VERSION_FOUND == 'true' }}
     steps:
