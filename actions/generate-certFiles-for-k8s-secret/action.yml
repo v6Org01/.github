@@ -28,18 +28,22 @@ runs:
         kubeconfig: ${{ inputs.KUBECONFIG }}
     - name: Cert - Get subject
       id: cert-subject
+      shell: bash
       run: |
         kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 -noout -text | grep 'Subject: CN = ' | sed -E 's/\s+Subject: CN = ([^ ]*)/\1/g'
     - name: Cert - Get expDate
       id: cert-expdate
+      shell: bash
       run: |
         kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 -noout -text | grep 'Not After' | awk -F ": " '{print $2}'
     - name: Cert - Generate files
+      shell: bash
       run: |
         kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.key"' | base64 -d > ./privkey.pem
         kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d > ./fullchain.pem
         kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 > ./cert.pem
     - name: Cert - List generated filesA
       id: cert-listFiles
+      shell: bash
       run: |
         ls -ll /tmp/*.pem
