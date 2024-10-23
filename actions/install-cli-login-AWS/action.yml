@@ -1,0 +1,35 @@
+name: install_cli_login_aws
+
+description: This action installs the aws cli and logs in with provided role
+
+inputs:
+  AWS_ROLE:
+    description: 'ARN of IAM role which will be assumed'
+    required: true
+    type: string
+  AWS_REGION:
+    description: 'Region of AWS resource'
+    required: true
+    default: eu-central-1
+    type: choice
+    options:
+      - us-east-1
+      - eu-central-1
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+        cache: 'pip'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install awscli
+    - name: Login AWS
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ inputs.AWS_REGION }}
+        role-to-assume: ${{ inputs.AWS_ROLE }}

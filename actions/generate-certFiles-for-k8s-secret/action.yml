@@ -1,0 +1,45 @@
+name: generate_cert_files_for_k8s_secret
+
+description: This action generate files for a k8s-hosted SSL/TLS certificate managed by cert-manager
+
+inputs:
+  SECRET:
+    description: 'Secret containing cert data'
+    required: true
+    type: string
+  KUBECONFIG:
+    description: 'Kubeconfig file'
+    required: true
+    type: string
+  NAMESPACE:
+    description: 'Namespace containing secret'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: K8S - Install kubectl
+      uses: azure/setup-kubectl@v4
+    - name: K8S - Set Context
+      uses: azure/k8s-set-context@v4
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ inputs.KUBECONFIG }}
+    - name: Cert - Get subject
+      id: cert-subject
+      run: |
+        kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 -noout -text | grep 'Subject: CN = ' | sed -E 's/\s+Subject: CN = ([^ ]*)/\1/g'
+    - name: Cert - Get expDate
+      id: cert-expdate
+      run: |
+        kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 -noout -text | grep 'Not After' | awk -F ": " '{print $2}'
+    - name: Cert - Generate files
+      run: |
+        kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.key"' | base64 -d > ./privkey.pem
+        kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d > ./fullchain.pem
+        kubectl get secret ${{ inputs.SECRET }} -n ${{ inputs.NAMESPACE }} -o json | jq -r '.data."tls.crt"' | base64 -d | openssl x509 > ./cert.pem
+    - name: Cert - List generated filesA
+      id: cert-listFiles
+      run: |
+        ls -ll /tmp/*.pem
