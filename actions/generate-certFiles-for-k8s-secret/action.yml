@@ -46,4 +46,4 @@ runs:
       id: cert-listFiles
       shell: bash
       run: |
-        ls -ll /tmp/*.pem
+        ls -ll *.pem
