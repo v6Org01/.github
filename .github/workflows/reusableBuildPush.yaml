@@ -17,13 +17,11 @@ on:
       PUSH_TO_PUBLIC:
         description: 'Push image to public registry'
         required: false
-        type: boolean
-        default: false
+        type: string
       PUSH_TO_PRIVATE:
         description: 'Push image to private registry'
         required: false
-        type: boolean
-        default: true
+        type: string
 
 jobs:
 
