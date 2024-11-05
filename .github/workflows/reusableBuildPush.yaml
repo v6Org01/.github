@@ -18,15 +18,12 @@ on:
         description: 'Push image to public registry'
         required: false
         type: boolean
-        default: true
+        default: false
       PUSH_TO_PRIVATE:
         description: 'Push image to private registry'
         required: false
         type: boolean
         default: true
-
-permissions:
-  contents: write
 
 jobs:
 
