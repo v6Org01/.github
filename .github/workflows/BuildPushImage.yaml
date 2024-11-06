@@ -156,6 +156,8 @@ jobs:
           cache-from: type=gha,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           provenance: false
+          build-args: |
+            REGISTRY=${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
           tags: |
             "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
