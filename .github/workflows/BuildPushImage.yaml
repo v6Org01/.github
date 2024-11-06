@@ -142,7 +142,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
       - name: Build and push to private
@@ -168,7 +168,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
       - name: Create manifest list and push
