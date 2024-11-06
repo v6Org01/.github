@@ -159,7 +159,7 @@ jobs:
           build-args: |
             REGISTRY=${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
           tags: |
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
+            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-private:
     runs-on: gha-runner-scale-set-arm64
@@ -173,9 +173,9 @@ jobs:
           REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
       - name: Create manifest list and push
         run: |
-          docker buildx imagetools create -t "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+          docker buildx imagetools create -t "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect "${{ inputs.WF_REGISTRY_PRIVATE }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
+          docker buildx imagetools inspect "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
