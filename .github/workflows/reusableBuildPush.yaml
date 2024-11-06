@@ -48,7 +48,7 @@ jobs:
       - name: Login to private # to pull (cached) base image
         uses: docker/login-action@v3
         with:
-          registry: ${{ vars.REGISTRY_PRIVATE }}
+          registry: ${{ vars.REGISTRY_PRIVATE_PULL }}
           username: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
           password: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
       - name: Login to public # to push
@@ -68,6 +68,8 @@ jobs:
           cache-from: type=gha,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           provenance: false
+          build-args: |
+            REGISTRY=${{ vars.REGISTRY_PRIVATE_PULL }}
           tags: |
             "${{ vars.REGISTRY_PUBLIC }}/${{ env.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
