@@ -1,0 +1,18 @@
+name: setup_buildx_private_registry
+
+description: This action logs into the private registry and sets up builx
+
+runs:
+  using: composite
+  steps:
+    - name: Login to private # to pull (cached) base image
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ vars.REGISTRY_PRIVATE_PULL }}
+        username: ${{ secrets.REGISTRY_PRIVATE_USER01 }}
+        password: "${{ secrets.REGISTRY_PRIVATE_USER01_PASSWD }}"
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: |
+          image=${{ vars.REGISTRY_PRIVATE_PULL }}/moby/buildkit:buildx-stable-1
