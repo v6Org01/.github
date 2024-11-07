@@ -1,0 +1,65 @@
+name: update_imagetag_argodeploy
+
+description: This action updates the image tag in ArgoCD Application manifest and deploys the App.
+
+inputs:
+  ARGOCD_APPLICATION_FILE:
+    description: 'Application file'
+    required: true
+    type: string
+  KUBECONFIG:
+    description: 'Kubeconfig file'
+    required: true
+    type: string
+  NAMESPACE:
+    description: 'Namespace to deploy app to'
+    required: true
+    type: string
+  VERSION:
+    description: 'Version to deploy'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Update image tag in ArgoCD Application manifest
+      shell: bash
+      run: |
+        sed -i '/^\s*-\s*name:\s*"image.tag"/!b;n;s/\(\s*value:\s*"\)[^"]*/\1${{ inputs.VERSION }}/' ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: Output updated value for image.tag
+      shell: bash
+      run: |
+        echo "Update image.tag entry:"
+        grep -A 1 'name: "image.tag"' ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: Commit changes
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add ${{ inputs.ARGOCD_APPLICATION_FILE }}
+        git commit -m "Updated image.tag in ${{ inputs.ARGOCD_APPLICATION_FILE }}" --allow-empty
+        git pull --rebase
+        git push
+    - name: K8S - Install kubectl
+      uses: azure/setup-kubectl@v4
+    - name: K8S - Set Context
+      uses: azure/k8s-set-context@v4
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ inputs.KUBECONFIG }}
+    - name: K8S - Validate ArgoCD Application manifest file
+      uses: azure/k8s-lint@v3
+      with:
+        lintType: dryrun
+        namespace: ${{ inputs.NAMESPACE }}
+        manifests: |
+          ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: K8S - Deploy ArgoCD Application
+      shell: bash
+      run: |
+        kubectl apply -f ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: Wait a minute for application to be deployed
+      shell: bash
+      run: |
+        sleep 60
