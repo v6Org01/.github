@@ -12,6 +12,7 @@ runs:
   using: composite
   steps:
     - name: Install openssh-client
+      shell: bash
       run: |
         sudo apt-get update -y
         sudo apt-get install openssh-client -y
@@ -21,11 +22,13 @@ runs:
       with:
         ssh-key: ${{ inputs.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
     - name: Get Commit Msg
+      shell: bash
       run: |
         # Get the last commit message
         MSG=$(git log -1 --pretty=%B)
         echo "COMMIT_MSG=$MSG" >> $GITHUB_ENV
     - name: Determine Version
+      shell: bash
       run: |
         # Check if the commit message contains a version in the major.minor.patch format
         if [[ "${{ env.COMMIT_MSG }}" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
@@ -39,6 +42,7 @@ runs:
           exit 1 
         fi
     - name: Update repo var APPLICATION_VERSION
+      shell: bash
       run: |
         curl -L \
           -X PATCH \
@@ -48,6 +52,7 @@ runs:
           -d "{\"name\":\"APPLICATION_VERSION\",\"value\":\"${{ env.VERSION }}\"}" \
           https://api.github.com/repos/v6Org01/jlv6/actions/variables/APPLICATION_VERSION
     - name: Create or update tag
+      shell: bash
       run: |
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
