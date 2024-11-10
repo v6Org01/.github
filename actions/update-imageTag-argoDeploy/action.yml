@@ -28,15 +28,15 @@ runs:
   using: composite
   steps:
     - name: Install openssh-client
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install openssh-client -y
-          sudo rm -rf /var/lib/apt/lists/*
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install openssh-client -y
+        sudo rm -rf /var/lib/apt/lists/*
     - name: Checkout
       uses: actions/checkout@v4
       with:
         ssh-key: ${{ inputs.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
-    - name: Update image tag in ArgoCD Application manifest
+    - name: Update image tag in ArgoCD Applicafation manifest
       shell: bash
       run: |
         sed -i '/^\s*-\s*name:\s*"image.tag"/!b;n;s/\(\s*value:\s*"\)[^"]*/\1${{ inputs.VERSION }}/' ${{ inputs.ARGOCD_APPLICATION_FILE }}

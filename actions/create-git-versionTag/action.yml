@@ -12,10 +12,10 @@ runs:
   using: composite
   steps:
     - name: Install openssh-client
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install openssh-client -y
-          sudo rm -rf /var/lib/apt/lists/*
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install openssh-client -y
+        sudo rm -rf /var/lib/apt/lists/*
     - name: Checkout
       uses: actions/checkout@v4
       with:
