@@ -28,6 +28,7 @@ runs:
   using: composite
   steps:
     - name: Install openssh-client
+      shell: bash
       run: |
         sudo apt-get update -y
         sudo apt-get install openssh-client -y
