@@ -7,6 +7,10 @@ inputs:
     description: 'Application file'
     required: true
     type: string
+  DEPLOY_PRIVATE_KEY:
+    description: 'deploy private key'
+    required: true
+    type: string
   KUBECONFIG:
     description: 'Kubeconfig file'
     required: true
@@ -23,6 +27,15 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Install openssh-client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install openssh-client -y
+          sudo rm -rf /var/lib/apt/lists/*
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ssh-key: ${{ inputs.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
     - name: Update image tag in ArgoCD Application manifest
       shell: bash
       run: |

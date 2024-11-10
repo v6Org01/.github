@@ -1,0 +1,55 @@
+name: create_git_tag
+
+description: This action creates a git tag for a verison major.minor.patch specified in a commit message.
+
+inputs:
+  DEPLOY_PRIVATE_KEY:
+    description: 'deploy private key'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Install openssh-client
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install openssh-client -y
+          sudo rm -rf /var/lib/apt/lists/*
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ssh-key: ${{ inputs.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
+    - name: Get Commit Msg
+      run: |
+        # Get the last commit message
+        MSG=$(git log -1 --pretty=%B)
+        echo "COMMIT_MSG=$MSG" >> $GITHUB_ENV
+    - name: Determine Version
+      run: |
+        # Check if the commit message contains a version in the major.minor.patch format
+        if [[ "${{ env.COMMIT_MSG }}" =~ ([0-9]+)\.([0-9]+)\.([0-9]+) ]]; then
+          MAJOR="${BASH_REMATCH[1]}"
+          MINOR="${BASH_REMATCH[2]}"
+          PATCH="${BASH_REMATCH[3]}"
+          echo "VERSION=$MAJOR.$MINOR.$PATCH" >> $GITHUB_ENV
+          echo "Version from commit message: $VERSION"
+        else
+          echo "Error: Commit message does not contain a version in major.minor.patch format."
+          exit 1 
+        fi
+    - name: Update repo var APPLICATION_VERSION
+      run: |
+        curl -L \
+          -X PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.PAT_DEFAULT }}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          -d "{\"name\":\"APPLICATION_VERSION\",\"value\":\"${{ env.VERSION }}\"}" \
+          https://api.github.com/repos/v6Org01/jlv6/actions/variables/APPLICATION_VERSION
+    - name: Create or update tag
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -f "v${{ env.VERSION }}"
+        git push origin "v${{ env.VERSION }}" --force
