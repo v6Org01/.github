@@ -11,6 +11,11 @@ on:
         description: 'Version to include in tag'
         required: true
         type: string
+      BUILD_ARGS:
+        description: 'Build arguments'
+        required: false
+        type: string
+        default: ''
       PUSH_TO_PUBLIC:
         description: 'Push image to public registry'
         required: false
@@ -21,32 +26,32 @@ on:
         required: false
         type: boolean
         default: true
-      WF_OWNER:
+      OWNER:
         description: 'Registry owner'
-        required: true
+        required: false
         type: string
-      WF_REGISTRY_PRIVATE:
+        default: ''
+      REGISTRY_PRIVATE:
         description: 'Private registry URI:PORT'
         required: true
         type: string
-      WF_REGISTRY_PRIVATE_PULL:
+      REGISTRY_PRIVATE_PULL:
         description: 'Private registry URI:PULL_PORT'
         required: true
         type: string
-      WF_REGISTRY_PUBLIC:
+      REGISTRY_PUBLIC:
         description: 'Public registry URI'
-        required: true
+        required: false
         type: string
     secrets:
-      WF_REGISTRY_PRIVATE_USER:
+      REGISTRY_PRIVATE_USER:
         required: true
-      WF_REGISTRY_PRIVATE_PASSWD:
+      REGISTRY_PRIVATE_PASSWD:
         required: true
-      WF_REGISTRY_PUBLIC_USER:
-        required: true
-      WF_REGISTRY_PUBLIC_PASSWD:
-        required: true
-      
+      REGISTRY_PUBLIC_USER:
+        required: false
+      REGISTRY_PUBLIC_PASSWD:
+        required: false
 
 jobs:
 
@@ -71,15 +76,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
-          REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to public # to push
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.WF_REGISTRY_PUBLIC }}
-          username: ${{ secrets.WF_REGISTRY_PUBLIC_USER }}
-          password: ${{ secrets.WF_REGISTRY_PUBLIC_PASSWD }}
+          registry: ${{ inputs.REGISTRY_PUBLIC }}
+          username: ${{ secrets.REGISTRY_PUBLIC_USER }}
+          password: ${{ secrets.REGISTRY_PUBLIC_PASSWD }}
       - name: Build and push to public
         id: build
         uses: docker/build-push-action@v6
@@ -91,10 +96,9 @@ jobs:
           cache-from: type=gha,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           provenance: false
-          build-args: |
-            REGISTRY=${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
+          build-args: ${{ inputs.BUILD_ARGS }}
           tags: |
-            "${{ inputs.WF_REGISTRY_PUBLIC }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
+            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-public:
     runs-on: gha-runner-scale-set-arm64
@@ -103,23 +107,23 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
-          REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to public registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.WF_REGISTRY_PUBLIC }}
-          username: ${{ secrets.WF_REGISTRY_PUBLIC_USER }}
-          password: ${{ secrets.WF_REGISTRY_PUBLIC_PASSWD }}
+          registry: ${{ inputs.REGISTRY_PUBLIC }}
+          username: ${{ secrets.REGISTRY_PUBLIC_USER }}
+          password: ${{ secrets.REGISTRY_PUBLIC_PASSWD }}
       - name: Create manifest list and push
         run: |
-          docker buildx imagetools create -t "${{ inputs.WF_REGISTRY_PUBLIC }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.WF_REGISTRY_PUBLIC }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-            "${{ inputs.WF_REGISTRY_PUBLIC }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+          docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect "${{ inputs.WF_REGISTRY_PUBLIC }}/${{ inputs.WF_OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
+          docker buildx imagetools inspect "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
 
   ## PRIVATE ##
 
@@ -142,15 +146,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
-          REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to private # to push
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.WF_REGISTRY_PRIVATE }}
-          username: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          password: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          registry: ${{ inputs.REGISTRY_PRIVATE }}
+          username: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Build and push to private
         id: build
         uses: docker/build-push-action@v6
@@ -162,10 +166,9 @@ jobs:
           cache-from: type=gha,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           cache-to: type=gha,mode=max,scope=build-${{ inputs.APPLICATION }}-${{ matrix.platform }}
           provenance: false
-          build-args: |
-            REGISTRY=${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
+          build-args: ${{ inputs.BUILD_ARGS }}
           tags: |
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-private:
     runs-on: gha-runner-scale-set-arm64
@@ -174,20 +177,20 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.WF_REGISTRY_PRIVATE_PULL }}
-          REGISTRY_USER: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          REGISTRY_PASSWD: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to private # to push
         uses: docker/login-action@v3
         with:
-          registry: ${{ inputs.WF_REGISTRY_PRIVATE }}
-          username: ${{ secrets.WF_REGISTRY_PRIVATE_USER }}
-          password: "${{ secrets.WF_REGISTRY_PRIVATE_PASSWD }}"
+          registry: ${{ inputs.REGISTRY_PRIVATE }}
+          username: ${{ secrets.REGISTRY_PRIVATE_USER }}
+          password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Create manifest list and push
         run: |
-          docker buildx imagetools create -t "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-            "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+          docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect "${{ inputs.WF_REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
+          docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
