@@ -19,35 +19,35 @@ runs:
   using: composite
   steps:
     - name: TFC - Upload config
-        id: upload
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
-        with:
-          workspace: ${{ inputs.WORKSPACE }}
-          directory: ${{ inputs.DIRECTORY }}
-      - name: TFC - Create Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
-        id: create-run
-        with:
-          workspace: ${{ inputs.WORKSPACE }}
-          configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
-      - name: TFC - Apply
-        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
-        id: apply
-        if: ${{ fromJSON(steps.create-run.outputs.payload).data.attributes.actions.IsConfirmable }}
-        with:
-          run: ${{ steps.create-run.outputs.run_id }}
-          comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
-      - name: TFC - Get Run Info
-        uses: hashicorp/tfc-workflows-github/actions/show-run@v1.3.1
-        id: get-run
-        with:
-          run: ${{ steps.create-run.outputs.run_id }}
-      - name: TFC - Get Workspace Output
-        uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
-        id: workspace-output
-        with:
-          workspace: ${{ inputs.WORKSPACE }}
-      - name: Set action output
-        shell: bash
-        run: |
-          echo "TF_APPLY_OUTPUT=${{ steps.workspace-output.outputs.value }}" >> $GITHUB_OUTPUT
+      id: upload
+      uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.3.1
+      with:
+        workspace: ${{ inputs.WORKSPACE }}
+        directory: ${{ inputs.DIRECTORY }}
+    - name: TFC - Create Run
+      uses: hashicorp/tfc-workflows-github/actions/create-run@v1.3.1
+      id: create-run
+      with:
+        workspace: ${{ inputs.WORKSPACE }}
+        configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
+    - name: TFC - Apply
+      uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.3.1
+      id: apply
+      if: ${{ fromJSON(steps.create-run.outputs.payload).data.attributes.actions.IsConfirmable }}
+      with:
+        run: ${{ steps.create-run.outputs.run_id }}
+        comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+    - name: TFC - Get Run Info
+      uses: hashicorp/tfc-workflows-github/actions/show-run@v1.3.1
+      id: get-run
+      with:
+        run: ${{ steps.create-run.outputs.run_id }}
+    - name: TFC - Get Workspace Output
+      uses: hashicorp/tfc-workflows-github/actions/workspace-output@v1.3.1
+      id: workspace-output
+      with:
+        workspace: ${{ inputs.WORKSPACE }}
+    - name: Set action output
+      shell: bash
+      run: |
+        echo "TF_APPLY_OUTPUT=${{ steps.workspace-output.outputs.value }}" >> $GITHUB_OUTPUT
