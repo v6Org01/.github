@@ -1,0 +1,34 @@
+name: create_git_tag
+
+description: This action creates a git tag for a version in format major.minor.patch.
+
+inputs:
+  DEPLOY_PRIVATE_KEY:
+    description: 'deploy private key'
+    required: true
+    type: string
+  TAG_VALUE:
+    description: 'git tag value'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Install openssh-client
+      shell: bash
+      run: |
+        sudo apt-get update -y
+        sudo apt-get install openssh-client -y
+        sudo rm -rf /var/lib/apt/lists/*
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ssh-key: ${{ inputs.DEPLOY_PRIVATE_KEY }} # needed to bypass branch protection
+    - name: Create or update tag
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git tag -f "${{ inputs.TAG_VALUE }}"
+        git push origin "${{ inputs.TAG_VALUE }}" --force

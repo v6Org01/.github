@@ -1,4 +1,4 @@
-name: update_tfc_variableset_variable
+name: update_tfc_set_variable
 
 description: This action creates or updates a variable in a TFC Workspace Variable Set.
 
@@ -7,7 +7,7 @@ inputs:
     description: 'Terraform Cloud API token'
     required: true
     type: string
-  TF_ORG:
+  TF_CLOUD_ORGANIZATION:
     description: 'Terraform Cloud Workspace ID'
     required: true
     type: string
@@ -41,7 +41,7 @@ runs:
         VAR_SET_ID=$(curl -s \
           -H "Authorization: Bearer ${{ inputs.TF_API_TOKEN }}" \
           -H "Content-Type: application/vnd.api+json" \
-          "https://app.terraform.io/api/v2/organizations/${{ inputs.TF_ORG }}/varsets" | \
+          "https://app.terraform.io/api/v2/organizations/${{ inputs.TF_CLOUD_ORGANIZATION }}/varsets" | \
           jq -r ".data[] | select(.attributes.name == \"${{ inputs.VAR_SET_NAME }}\") | .id")
         
         # Check if the variable set exists
