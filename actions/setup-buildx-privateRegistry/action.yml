@@ -6,12 +6,15 @@ inputs:
   REGISTRY:
     description: 'Container registry to log into'
     required: true
+    type: string
   REGISTRY_USER:
     description: 'User for Auth'
     required: true
+    type: string
   REGISTRY_PASSWD:
     description: 'User password for Auth'
     required: true
+    type: string
 
 runs:
   using: composite

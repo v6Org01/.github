@@ -1,0 +1,74 @@
+name: update_tfc_variable
+
+description: This action creates or updates a TFC Workspace variable.
+
+inputs:
+  TF_API_TOKEN:
+    description: 'Terraform Cloud API token'
+    required: true
+    type: string
+  TF_WORKSPACE_ID:
+    description: 'Terraform Cloud Workspace ID'
+    required: true
+    type: string
+  VAR_CATEGORY:
+    description: 'Terraform Cloud variable type: env or terraform'
+    required: true
+    type: string
+  VAR_SENSITIVITY:
+    description: 'Terraform Cloud variable sensitivity'
+    required: true
+    type: string
+  VAR_NAME:
+    description: 'Terraform Cloud variable name'
+    required: true
+    type: string
+  VAR_VALUE:
+    description: 'Terraform Cloud variable value'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Set Terraform Cloud variable
+      shell: bash
+      run: |
+        EXISTING_VAR_ID=$(curl -s \
+          -H "Authorization: Bearer ${{ inputs.TF_API_TOKEN }}" \
+          -H "Content-Type: application/vnd.api+json" \
+          "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars" | \
+          jq -r ".data[] | select(.attributes.key == \"${{ inputs.VAR_NAME }}\") | .id")
+
+        # Define the payload for updating or creating the variable
+        payload=$(jq -n --arg key "${{ inputs.VAR_NAME }}" --arg value "${{ inputs.VAR_VALUE }}" \
+          '{
+            data: {
+              type: "vars",
+              attributes: {
+                key: $key,
+                value: $value,
+                category: "${{ inputs.VAR_CATEGORY }}", # Use "terraform" for Terraform variables
+                hcl: false,      # Set to true if the variable is HCL code
+                sensitive: ${{ inputs.VAR_SENSITIVITY }} # Set to true if the variable is sensitive
+              }
+            }
+          }')
+
+        if [ -n "$EXISTING_VAR_ID" ]; then
+          # Update the existing variable
+          curl -s -X PATCH \
+            -H "Authorization: Bearer ${{ inputs.TF_API_TOKEN }}" \
+            -H "Content-Type: application/vnd.api+json" \
+            -d "$payload" \
+            "https://app.terraform.io/api/v2/vars/$EXISTING_VAR_ID"
+          echo "Variable '${{ inputs.VAR_NAME }}' updated successfully."
+        else
+          # Create a new variable
+          curl -s -X POST \
+            -H "Authorization: Bearer ${{ inputs.TF_API_TOKEN }}" \
+            -H "Content-Type: application/vnd.api+json" \
+            -d "$payload" \
+            "https://app.terraform.io/api/v2/workspaces/${{ inputs.TF_WORKSPACE_ID }}/vars"
+          echo "Variable '${{ inputs.VAR_NAME }}' created successfully."
+        fi
