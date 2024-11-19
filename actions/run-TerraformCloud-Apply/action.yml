@@ -13,7 +13,8 @@ inputs:
     type: string
 outputs:
   TF_OUTPUT:
-    description: 'TFC run apply output'
+    description: 'TFC workspace output'
+    value: ${{ steps.set-output.outputs.TF_OUTPUT }}
 
 runs:
   using: composite
@@ -48,6 +49,7 @@ runs:
       with:
         workspace: ${{ inputs.WORKSPACE }}
     - name: Set action output
+      id: set-output
       shell: bash
       run: |
         echo "TF_OUTPUT='${{ steps.workspace-output.outputs.outputs }}'" >> $GITHUB_OUTPUT
