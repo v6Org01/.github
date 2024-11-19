@@ -1,4 +1,4 @@
-name: run_tfc_apply
+name: run_tf_apply
 
 description: This action runs tf apply against a TFC Workspace.
 
