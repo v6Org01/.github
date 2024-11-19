@@ -71,5 +71,12 @@ runs:
           -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
           -H "Content-Type: application/vnd.api+json" \
           "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}")
+
         echo "DNS Update Response: "
         echo "$RESULT" | jq .
+
+        if [[ $(echo "$RESULT" | jq -r '.success') != "true" ]]; then
+          echo "DNS Update failed. Exiting."
+          exit 1
+        fi
+
