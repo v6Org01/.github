@@ -45,7 +45,7 @@ runs:
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
-            --data "{\"type\":\"${{ inputs.CF_RECORD_TYPE }}\",\"name\":\"${{ inputs.CF_RECORD_NAME }}\",\"content\":\"${{ inputs.CF_RECORD_VALUE }}\",\"ttl\":\"${{ inputs.CF_RECORD_TTL }}\",\"proxied\":\"${{ inputs.CF_RECORD_PROXIED }}\"}"
+            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":"${{ inputs.CF_RECORD_TTL }}","proxied":"${{ inputs.CF_RECORD_PROXIED }}"}'
     - name: Get result
       shell: bash
       run: |
@@ -60,6 +60,4 @@ runs:
         if [[ $(echo "$RESULT" | jq -r '.result | length') -eq 0 ]]; then
           echo "No DNS record found for the specified name. Exiting."
           exit 1
-        else
-          echo "DNS record created or updated: ${{ inputs.CF_RECORD_NAME }}: ${{ ${{ inputs.CF_RECORD_VALUE }}"
         fi
