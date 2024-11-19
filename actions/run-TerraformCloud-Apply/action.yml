@@ -12,7 +12,7 @@ inputs:
     required: true
     type: string
 outputs:
-  TF_APPLY_OUTPUT:
+  TF_OUTPUT:
     description: 'TFC run apply output'
 
 runs:
@@ -50,4 +50,4 @@ runs:
     - name: Set action output
       shell: bash
       run: |
-        echo "TF_APPLY_OUTPUT=${{ steps.workspace-output.outputs.value }}" >> $GITHUB_OUTPUT
+        echo "TF_OUTPUT=${{ steps.workspace-output.outputs.outputs }}" >> $GITHUB_OUTPUT
