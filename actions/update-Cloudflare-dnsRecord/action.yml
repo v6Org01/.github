@@ -46,7 +46,6 @@ runs:
             -H "Content-Type: application/vnd.api+json" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
             --data "{\"type\":\"${{ inputs.CF_RECORD_TYPE }}\",\"name\":\"${{ inputs.CF_RECORD_NAME }}\",\"content\":\"${{ inputs.CF_RECORD_VALUE }}\",\"ttl\":${{ inputs.CF_RECORD_TTL }},\"proxied\":${{ inputs.CF_RECORD_PROXIED }}}"
-        fi
     - name: Get result
       shell: bash
       run: |
