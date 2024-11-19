@@ -40,7 +40,7 @@ runs:
     - name: Create or update DNS record
       shell: bash
       run: |
-          echo "Creating or updating existing DNS record"
+          echo "Creating or updating existing DNS record..."
           curl -s \
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
@@ -60,4 +60,6 @@ runs:
         if [[ $(echo "$RESULT" | jq -r '.result | length') -eq 0 ]]; then
           echo "No DNS record found for the specified name. Exiting."
           exit 1
+        else
+          echo "DNS record created or updated: ${{ inputs.CF_RECORD_NAME }}:${{ ${{ inputs.CF_RECORD_VALUE }}"
         fi
