@@ -31,8 +31,8 @@ inputs:
   CF_RECORD_TTL:
     description: 'CF_RECORD_TTL value for DNS record in seconds'
     required: false
-    type: string
-    default: "1" # CF_RECORD_TTL=1 sets CF_RECORD_TTL to "Auto"
+    type: number
+    default: 1 # CF_RECORD_TTL=1 sets CF_RECORD_TTL to "Auto"
 
 runs:
   using: composite
@@ -45,7 +45,7 @@ runs:
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
-            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":"${{ inputs.CF_RECORD_TTL }}","proxied":"${{ inputs.CF_RECORD_PROXIED }}"}'
+            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":${{ inputs.CF_RECORD_TTL }},"proxied":"${{ inputs.CF_RECORD_PROXIED }}"}'
     - name: Get result
       shell: bash
       run: |
