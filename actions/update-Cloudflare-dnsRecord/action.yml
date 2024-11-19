@@ -37,46 +37,28 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Get record ID
-      id: get-record
-      shell: bash
-      run: |
-        curl -s \
-          -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
-          -H "Content-Type: application/vnd.api+json" \
-          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}" | \
-          jq -r '.result[0].id // empty' | \
-          awk '{print "RECORD_ID="$0}' >> GITHUB_ENV
     - name: Create or update DNS record
       shell: bash
       run: |
-        if [ -n "${{ env.RECORD_ID }}" ]; then
-          echo "Updating existing DNS record with ID: ${{ env.RECORD_ID }}"
+          echo "Creating or updating existing DNS record"
           curl -s \
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
-            -X PUT "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records/${{ env.RECORD_ID }}" \
-            --data "{\"type\":\"${{ inputs.CF_RECORD_TYPE }}\",\"name\":\"${{ inputs.CF_RECORD_NAME }}\",\"content\":\"${{ inputs.CF_RECORD_VALUE }}\",\"ttl\":${{ inputs.CF_RECORD_TTL }},\"proxied\":${{ inputs.CF_RECORD_PROXIED }}}"
-        else
-          echo "Creating new DNS record"
-          curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
-            -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
-            -H "Content-Type: application/vnd.api+json" \
+            -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
             --data "{\"type\":\"${{ inputs.CF_RECORD_TYPE }}\",\"name\":\"${{ inputs.CF_RECORD_NAME }}\",\"content\":\"${{ inputs.CF_RECORD_VALUE }}\",\"ttl\":${{ inputs.CF_RECORD_TTL }},\"proxied\":${{ inputs.CF_RECORD_PROXIED }}}"
         fi
-    - name: DNS update result
+    - name: Get result
       shell: bash
       run: |
         RESULT=$(curl -s \
           -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
           -H "Content-Type: application/vnd.api+json" \
-          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}")
+          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}.jlv6.com")
 
         echo "DNS Update Response: "
         echo "$RESULT" | jq .
 
-        if [[ $(echo "$RESULT" | jq -r '.success') != "true" ]]; then
-          echo "DNS Update failed. Exiting."
+        if [[ $(echo "$RESULT" | jq -r '.result | length') -eq 0 ]]; then
+          echo "No DNS record found for the specified name. Exiting."
           exit 1
         fi
-
