@@ -50,4 +50,4 @@ runs:
     - name: Set action output
       shell: bash
       run: |
-        echo "TF_OUTPUT=${{ steps.workspace-output.outputs.outputs }}" >> $GITHUB_OUTPUT
+        echo "TF_OUTPUT='${{ steps.workspace-output.outputs.outputs }}'" >> $GITHUB_OUTPUT
