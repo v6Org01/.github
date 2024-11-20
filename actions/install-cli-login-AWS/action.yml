@@ -8,7 +8,7 @@ inputs:
     required: true
     type: string
     default: eu-central-1
-  AWS_ROLE:
+  AWS_ROLE_ARN:
     description: 'ARN of IAM role which will be assumed'
     required: true
     type: string
@@ -28,4 +28,4 @@ runs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         aws-region: ${{ inputs.AWS_REGION }}
-        role-to-assume: ${{ inputs.AWS_ROLE }}
+        role-to-assume: ${{ inputs.AWS_ROLE_ARN }}
