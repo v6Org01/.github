@@ -14,7 +14,7 @@ inputs:
   CF_RECORD_PROXIED:
     description: 'Set to true to enable Cloudflare proxy'
     required: false
-    type: boolean
+    type: string
     default: false
   CF_RECORD_NAME:
     description: 'DNS record name (e.g., subdomain.example.com)'
