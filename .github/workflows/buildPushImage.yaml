@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       VERSION:
-        description: 'Version to include in tag'
+        description: 'Application version'
         required: true
         type: string
       BUILD_ARGS:
