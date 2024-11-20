@@ -41,12 +41,11 @@ runs:
       id: get-record
       shell: bash
       run: |
-        curl -s \
+        echo CF_RECORD_ID=$(curl -s \
           -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
           -H "Content-Type: application/vnd.api+json" \
           "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}" | \
-          jq -r '.result[0].id // empty' | \
-          awk '{print "CF_RECORD_ID="$0}' >> GITHUB_ENV
+          jq -r '.result[0].id // empty') >> $GITHUB_ENV
     - name: Create or update DNS record
       shell: bash
       run: |
