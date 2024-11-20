@@ -3,18 +3,15 @@ name: install_cli_login_aws
 description: This action installs the aws cli and logs in with provided role
 
 inputs:
+  AWS_REGION:
+    description: 'AWS resource region'
+    required: true
+    type: string
+    default: eu-central-1
   AWS_ROLE:
     description: 'ARN of IAM role which will be assumed'
     required: true
     type: string
-  AWS_REGION:
-    description: 'Region of AWS resource'
-    required: true
-    default: eu-central-1
-    type: choice
-    options:
-      - us-east-1
-      - eu-central-1
 
 runs:
   using: composite
