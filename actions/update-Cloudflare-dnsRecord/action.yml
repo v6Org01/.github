@@ -14,8 +14,8 @@ inputs:
   CF_RECORD_PROXIED:
     description: 'Set to true to enable Cloudflare proxy'
     required: false
-    type: string
-    default: "false"
+    type: boolean
+    default: false
   CF_RECORD_NAME:
     description: 'DNS record name (e.g., subdomain.example.com)'
     required: true
@@ -45,7 +45,7 @@ runs:
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
-            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":${{ inputs.CF_RECORD_TTL }},"proxied":"${{ inputs.CF_RECORD_PROXIED }}"}'
+            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":${{ inputs.CF_RECORD_TTL }},"proxied":${{ inputs.CF_RECORD_PROXIED }}}'
     - name: Get result
       shell: bash
       run: |
