@@ -37,22 +37,53 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Get DNS record ID
+      id: get-record
+      shell: bash
+      run: |
+        curl -s \
+          -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
+          -H "Content-Type: application/vnd.api+json" \
+          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}" | \
+          jq -r '.result[0].id // empty' | \
+          awk '{print "CF_RECORD_ID="$0}' >> GITHUB_ENV
     - name: Create or update DNS record
       shell: bash
       run: |
-          echo "Creating or updating existing DNS record..."
+        if [ -n "${{ env.CF_RECORD_ID }}" ]; then
+          echo "Updating existing DNS record with ID: ${{ env.CF_RECORD_ID }}"
+          curl -s \
+            -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
+            -H "Content-Type: application/vnd.api+json" \
+            -X PUT "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records/${{ env.CF_RECORD_ID }}" \
+            --data '{
+              "type":"${{ inputs.CF_RECORD_TYPE }}",
+              "name":"${{ inputs.CF_RECORD_NAME }}",
+              "content":"${{ inputs.CF_RECORD_VALUE }}",
+              "ttl":${{ inputs.CF_RECORD_TTL }},
+              "proxied":${{ inputs.CF_RECORD_PROXIED }}
+            }'
+        else
+          echo "Creating new DNS record"
           curl -s \
             -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
             -H "Content-Type: application/vnd.api+json" \
             -X POST "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records" \
-            --data '{"type":"${{ inputs.CF_RECORD_TYPE }}","name":"${{ inputs.CF_RECORD_NAME }}","content":"${{ inputs.CF_RECORD_VALUE }}","ttl":${{ inputs.CF_RECORD_TTL }},"proxied":${{ inputs.CF_RECORD_PROXIED }}}'
+            --data '{
+              "type":"${{ inputs.CF_RECORD_TYPE }}",
+              "name":"${{ inputs.CF_RECORD_NAME }}",
+              "content":"${{ inputs.CF_RECORD_VALUE }}",
+              "ttl":${{ inputs.CF_RECORD_TTL }},
+              "proxied":${{ inputs.CF_RECORD_PROXIED }}
+            }'
+        fi
     - name: Get result
       shell: bash
       run: |
         RESULT=$(curl -s \
           -H "Authorization: Bearer ${{ inputs.CF_API_TOKEN }}" \
           -H "Content-Type: application/vnd.api+json" \
-          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}.jlv6.com")
+          "https://api.cloudflare.com/client/v4/zones/${{ inputs.CF_ZONE_ID }}/dns_records?name=${{ inputs.CF_RECORD_NAME }}")
 
         echo "DNS Update Response: "
         echo "$RESULT" | jq .
