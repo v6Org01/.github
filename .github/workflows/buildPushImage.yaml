@@ -220,5 +220,6 @@ jobs:
     steps:
       - name: Set output IS_CANCELLED
         id: set-output-cancelled
+        if: ${{ cancelled() }}
         run: |
           echo "IS_CANCELLED=true" >> $GITHUB_OUTPUT
