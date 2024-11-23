@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: ''
+      CONTEXT:
+        description: 'Base path'
+        required: false
+        type: string
+        default: '.'
       PUSH_TO_PUBLIC:
         description: 'Push image to public registry'
         required: false
@@ -93,7 +98,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ inputs.CONTEXT }}
           platforms: linux/${{ matrix.platform }}
           file: src/docker/Dockerfile
           push: true
@@ -163,7 +168,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ inputs.CONTEXT }}
           platforms: linux/${{ matrix.platform }}
           file: src/docker/Dockerfile
           push: true
