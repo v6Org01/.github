@@ -1,0 +1,45 @@
+name: deploy_argoApp
+
+description: This action deploys an ArgoCD Application.
+
+inputs:
+  ARGOCD_APPLICATION_FILE:
+    description: 'Application file'
+    required: true
+    type: string
+  KUBECONFIG:
+    description: 'Kubeconfig file'
+    required: true
+    type: string
+  NAMESPACE:
+    description: 'Namespace to deploy app to'
+    required: true
+    type: string
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: K8S - Install kubectl
+      uses: azure/setup-kubectl@v4
+    - name: K8S - Set Context
+      uses: azure/k8s-set-context@v4
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ inputs.KUBECONFIG }}
+    - name: K8S - Validate ArgoCD Application manifest file
+      uses: azure/k8s-lint@v3
+      with:
+        lintType: dryrun
+        namespace: ${{ inputs.NAMESPACE }}
+        manifests: |
+          ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: K8S - Deploy ArgoCD Application
+      shell: bash
+      run: |
+        kubectl apply -f ${{ inputs.ARGOCD_APPLICATION_FILE }}
+    - name: Wait a minute for application to be deployed
+      shell: bash
+      run: |
+        sleep 60
