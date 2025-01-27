@@ -71,12 +71,12 @@ jobs:
       matrix:
         platform:
           - amd64
-#         - arm64
+          - arm64
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
-#         - platform: arm64
-#           runner: gha-runner-scale-set-arm64
+          - platform: arm64
+            runner: gha-runner-scale-set-arm64
     runs-on: ${{ matrix.runner }}
     if: ${{ inputs.PUSH_TO_PUBLIC == true }}
     steps:
@@ -125,11 +125,11 @@ jobs:
           registry: ${{ inputs.REGISTRY_PUBLIC }}
           username: ${{ secrets.REGISTRY_PUBLIC_USER }}
           password: ${{ secrets.REGISTRY_PUBLIC_PASSWD }}
-#     - name: Create manifest list and push
-#       run: |
-#         docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-#           "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-#           "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+      - name: Create manifest list and push
+        run: |
+          docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Create manifest list and push
         run: |
           docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
@@ -145,12 +145,12 @@ jobs:
       matrix:
         platform:
           - amd64
-#         - arm64
+          - arm64
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
-#         - platform: arm64
-#           runner: gha-runner-scale-set-arm64
+          - platform: arm64
+            runner: gha-runner-scale-set-arm64
     runs-on: ${{ matrix.runner }}
     if: ${{ inputs.PUSH_TO_PRIVATE == true }}
     steps:
@@ -199,11 +199,11 @@ jobs:
           registry: ${{ inputs.REGISTRY_PRIVATE }}
           username: ${{ secrets.REGISTRY_PRIVATE_USER }}
           password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
-#     - name: Create manifest list and push
-#       run: |
-#         docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-#           "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-#           "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+      - name: Create manifest list and push
+        run: |
+          docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Create manifest list and push
         run: |
           docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
