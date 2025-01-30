@@ -110,7 +110,7 @@ jobs:
             "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-public:
-    runs-on: gha-runner-scale-set-amd64
+    runs-on: gha-runner-scale-set-arm64
     needs: build-image-push-public
     steps:
       - name: Set up Docker Buildx
@@ -130,10 +130,6 @@ jobs:
           docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
             "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
             "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
-      - name: Create manifest list and push
-        run: |
-          docker buildx imagetools create -t "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64"
       - name: Inspect image
         run: |
           docker buildx imagetools inspect "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
@@ -184,7 +180,7 @@ jobs:
             "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-private:
-    runs-on: gha-runner-scale-set-amd64
+    runs-on: gha-runner-scale-set-arm64
     needs: build-image-push-private
     steps:
       - name: Set up Docker Buildx
@@ -204,16 +200,12 @@ jobs:
           docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
             "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
             "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
-      - name: Create manifest list and push
-        run: |
-          docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64"
       - name: Inspect image
         run: |
           docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
 
   forward-var-version:
-    runs-on: gha-runner-scale-set-amd64
+    runs-on: gha-runner-scale-set-arm64
     outputs:
       VERSION: ${{ steps.set-output-version.outputs.VERSION }}
     steps:
