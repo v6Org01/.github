@@ -41,10 +41,11 @@ runs:
         THRESHOLD=$((24 * 60 * 60))
 
         echo "LAST_UPDATED_TIMESTAMP=$LAST_UPDATED_TIMESTAMP" >> $GITHUB_ENV
+
         echo "$DIFF"
         echo "$THRESHOLD"
 
-        if [ "$DIFF" -le "$THRESHOLD" ]; then
+        if [ "$THRESHOLD" -le "$DIFF" ]; then
           echo "updated=true" >> $GITHUB_ENV
         else
           echo "updated=false" >> $GITHUB_ENV
