@@ -1,4 +1,4 @@
-name: build_push
+name: build-push-image
 
 on:
   workflow_call:
@@ -11,6 +11,11 @@ on:
         description: 'Application version'
         required: true
         type: string
+      ARCHITECTURE:
+        description: 'Target architecture: mixed (default), amd64, or arm64'
+        required: false
+        type: string
+        default: 'mixed'
       BUILD_ARGS:
         description: 'Build arguments'
         required: false
@@ -69,9 +74,11 @@ jobs:
   build-image-push-public:
     strategy:
       matrix:
-        platform:
-          - amd64
-          - arm64
+        platform: ${{ fromJson(
+          inputs.ARCHITECTURE == 'mixed' && '["amd64", "arm64"]' ||
+          inputs.ARCHITECTURE == 'amd64' && '["amd64"]' ||
+          '["arm64"]'
+        ) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
@@ -111,6 +118,7 @@ jobs:
 
   build-merge-public:
     runs-on: gha-runner-scale-set-arm64
+    if: ${{ inputs.ARCHITECTURE == 'mixed' && inputs.PUSH_TO_PUBLIC == true }}
     needs: build-image-push-public
     steps:
       - name: Set up Docker Buildx
@@ -139,9 +147,11 @@ jobs:
   build-image-push-private:
     strategy:
       matrix:
-        platform:
-          - amd64
-          - arm64
+        platform: ${{ fromJson(
+          inputs.ARCHITECTURE == 'mixed' && '["amd64", "arm64"]' ||
+          inputs.ARCHITECTURE == 'amd64' && '["amd64"]' ||
+          '["arm64"]'
+        ) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
@@ -181,6 +191,7 @@ jobs:
 
   build-merge-private:
     runs-on: gha-runner-scale-set-arm64
+    if: ${{ inputs.ARCHITECTURE == 'mixed' && inputs.PUSH_TO_PRIVATE == true }}
     needs: build-image-push-private
     steps:
       - name: Set up Docker Buildx
