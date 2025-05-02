@@ -69,34 +69,34 @@ on:
 
 jobs:
 
-  set-matrix:
-    runs-on: ubuntu-latest
+  set-platform:
+    runs-on: gha-runner-scale-set-arm64
     outputs:
-      matrix: ${{ steps.set.outputs.matrix }}
+      platforms: ${{ steps.set.outputs.platforms }}
     steps:
       - id: set
         run: |
           case "${{ inputs.ARCHITECTURE }}" in
             mixed)
-              echo 'matrix=["amd64","arm64"]' >> $GITHUB_OUTPUT
+              echo 'platforms=["amd64","arm64"]' >> $GITHUB_OUTPUT
               ;;
             amd64)
-              echo 'matrix=["amd64"]' >> $GITHUB_OUTPUT
+              echo 'platforms=["amd64"]' >> $GITHUB_OUTPUT
               ;;
             arm64)
-              echo 'matrix=["arm64"]' >> $GITHUB_OUTPUT
+              echo 'platforms=["arm64"]' >> $GITHUB_OUTPUT
               ;;
             *)
-              echo "Invalid ARCHITECTURE input"
+              echo "Invalid ARCHITECTURE value: ${{ inputs.ARCHITECTURE }}"
               exit 1
               ;;
           esac
 
   build-image-push-public:
-    needs: set-matrix
+    needs: set-platform
     strategy:
       matrix:
-        platform: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
+        platform: ${{ fromJSON(needs.set-platform.outputs.platforms) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
@@ -160,10 +160,10 @@ jobs:
           docker buildx imagetools inspect "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
 
   build-image-push-private:
-    needs: set-matrix
+    needs: set-platform
     strategy:
       matrix:
-        platform: ${{ fromJson(needs.set-matrix.outputs.matrix) }}
+        platform: ${{ fromJSON(needs.set-platform.outputs.platforms) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
