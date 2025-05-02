@@ -72,31 +72,26 @@ jobs:
   set-platform:
     runs-on: gha-runner-scale-set-arm64
     outputs:
-      platforms: ${{ steps.set.outputs.platforms }}
+      platforms: ${{ steps.set-platform.outputs.platforms }}
     steps:
-      - id: set
+      - id: set-platform
         run: |
-          case "${{ inputs.ARCHITECTURE }}" in
-            mixed)
-              echo 'platforms=["amd64","arm64"]' >> $GITHUB_OUTPUT
-              ;;
-            amd64)
-              echo 'platforms=["amd64"]' >> $GITHUB_OUTPUT
-              ;;
-            arm64)
-              echo 'platforms=["arm64"]' >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "Invalid ARCHITECTURE value: ${{ inputs.ARCHITECTURE }}"
-              exit 1
-              ;;
-          esac
+          if [ "${{ inputs.ARCHITECTURE }}" == "mixed" ]; then
+            echo "platforms=['amd64', 'arm64']" >> $GITHUB_ENV
+          elif [ "${{ inputs.ARCHITECTURE }}" == "amd64" ]; then
+            echo "platforms=['amd64']" >> $GITHUB_ENV
+          elif [ "${{ inputs.ARCHITECTURE }}" == "arm64" ]; then
+            echo "platforms=['arm64']" >> $GITHUB_ENV
+          else
+            echo "Invalid ARCHITECTURE value: ${{ inputs.ARCHITECTURE }}" >&2
+            exit 1
+          fi
 
   build-image-push-public:
     needs: set-platform
     strategy:
       matrix:
-        platform: ${{ fromJSON(needs.set-platform.outputs.platforms) }}
+        platform: ${{ fromJson(env.platforms) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
@@ -163,7 +158,7 @@ jobs:
     needs: set-platform
     strategy:
       matrix:
-        platform: ${{ fromJSON(needs.set-platform.outputs.platforms) }}
+        platform: ${{ fromJson(env.platforms) }}
         include:
           - platform: amd64
             runner: gha-runner-scale-set-amd64
