@@ -40,10 +40,6 @@ on:
         description: 'Private registry URI:PORT'
         required: true
         type: string
-      REGISTRY_PRIVATE_PULL:
-        description: 'Private registry URI:PULL_PORT'
-        required: true
-        type: string
       REGISTRY_PUBLIC:
         description: 'Public registry URI'
         required: false
@@ -105,7 +101,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to public # to push
@@ -137,7 +133,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to public registry
@@ -168,7 +164,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to private # to push
@@ -200,7 +196,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: v6Org01/.github/actions/setup-buildx-privateRegistry@main
         with:
-          REGISTRY: ${{ inputs.REGISTRY_PRIVATE_PULL }}
+          REGISTRY: ${{ inputs.REGISTRY_PRIVATE }}
           REGISTRY_USER: ${{ secrets.REGISTRY_PRIVATE_USER }}
           REGISTRY_PASSWD: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Login to private # to push
