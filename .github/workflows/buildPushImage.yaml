@@ -186,7 +186,7 @@ jobs:
           provenance: false
           build-args: ${{ inputs.BUILD_ARGS }}
           tags: |
-            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
+            "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-private:
     runs-on: gha-runner-scale-set-arm64
@@ -207,12 +207,12 @@ jobs:
           password: "${{ secrets.REGISTRY_PRIVATE_PASSWD }}"
       - name: Create manifest list and push
         run: |
-          docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
-            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
-            "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
+          docker buildx imagetools create -t "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}" \
+            "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-amd64" \
+            "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-arm64"
       - name: Inspect image
         run: |
-          docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
+          docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
 
   forward-var-version:
     runs-on: gha-runner-scale-set-arm64
