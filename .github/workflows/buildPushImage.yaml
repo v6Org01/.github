@@ -66,7 +66,7 @@ on:
 jobs:
 
   set-platform:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     outputs:
       matrix: ${{ steps.set.outputs.matrix }}
     steps:
@@ -122,7 +122,7 @@ jobs:
             "${{ inputs.REGISTRY_PUBLIC }}/${{ inputs.OWNER }}/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-public:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     needs: build-image-push-public
     if: ${{ inputs.PUSH_TO_PUBLIC == true && inputs.ARCHITECTURE == 'mixed' }}
     steps:
@@ -177,7 +177,7 @@ jobs:
             "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}-${{ matrix.platform }}"
 
   build-merge-private:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     needs: build-image-push-private
     if: ${{ inputs.PUSH_TO_PRIVATE == true && inputs.ARCHITECTURE == 'mixed' }}
     steps:
@@ -199,7 +199,7 @@ jobs:
           docker buildx imagetools inspect "${{ inputs.REGISTRY_PRIVATE }}/01/arc-${{ inputs.APPLICATION }}:${{ inputs.VERSION }}"
 
   forward-var-version:
-    runs-on: gha-runner-scale-set-arm64
+    runs-on: gha-runner-scale-set-amd64
     outputs:
       VERSION: ${{ steps.set-output-version.outputs.VERSION }}
     steps:
